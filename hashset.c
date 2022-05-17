@@ -1,6 +1,6 @@
 #include <assert.h>
 #include "hashset.h"
-#include "constants.h"
+#include "vec3D.h"
 
 hash FNV(const byte* pBuffer, const byte* const pBufferEnd)
 {
@@ -13,62 +13,33 @@ hash FNV(const byte* pBuffer, const byte* const pBufferEnd)
     return Hash;
 }
 
-hash hash_vec(Vec3D a)
+hash hash_vec(Vec3D key)
 {
-    byte* pBuffer = (byte*) &a;
+    byte* pBuffer = (byte*) &key;
     byte* pBufferEnd = pBuffer + sizeof(Vec3D);
 
     return FNV(pBuffer, pBufferEnd);
 }
 
-bool set_has(HashSet *set, Vec3D data)
+size_t probe(HashSet *set, Vec3D key)
 {
-    assert(set->size > 0);
-
-    size_t i = hash_vec(data) % set->size;
-
-    if(set->buckets[i]) return LL_contains(set->buckets[i], data);
-    else return false;
-
-}
-
-bool is_replacable(HashSet *set, Vec3D data)
-{
-    for(int m = 0; m < KNIGHT_MOVES_LEN; m++)
+  size_t index = hash_vec(key) % set->capacity;
+  while(set->buckets[index].flag == SET_FLAG_OCCUPIED && !vec_eq(set->buckets[index].entry, key))
     {
-        if(!set_has(set, vec_add(data, KNIGHT_MOVES[m])))
-        {
-            return false;
-        }
-    }    
-    return true;
-}
-
-bool LL_push_replace(HashSet *set, LL* head, Vec3D data)
-{
-    assert(head);
-
-    while(head->next)
-    {
-        if(is_replacable(set, head->data))
-        {
-            head->data = data;
-            return true;
-        }
-        head = head->next;
+      index = (index + 1) % set->capacity;
     }
-
-    head->next = LL_new(data);
-    return false;
+  return index;
 }
 
-
-void set_put(HashSet *set, Vec3D data)
+bool set_has(HashSet *set, Vec3D key)
 {
-    assert(set->size > 0);
+  size_t index = probe(set, key);
+  return (set->buckets[index].flag == SET_FLAG_OCCUPIED) && vec_eq(set->buckets[index].entry, key);
+}
 
-    size_t i = hash_vec(data) % set->size;
-
-    if(set->buckets[i]) LL_push(set->buckets[i], data);
-    else set->buckets[i] = LL_new(data);
+void set_put(HashSet *set, Vec3D key)
+{
+  size_t index = probe(set, key);
+  set->buckets[index].entry = key;
+  set->buckets[index].flag = SET_FLAG_OCCUPIED;
 }
