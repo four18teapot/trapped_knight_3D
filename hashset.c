@@ -3,7 +3,6 @@
 #include "hashset.h"
 #include "vec3D.h"
 
-
 hash FNV(const byte* pBuffer, const byte* const pBufferEnd)
 {
     const hash MagicPrime = 0x00000100000001b3;
@@ -23,18 +22,15 @@ hash hash_vec(Vec3D key)
     return FNV(pBuffer, pBufferEnd);
 }
 
+// Linear probing
 size_t probe(HashSet *set, Vec3D key)
 {
-  hash key_hashed = hash_vec(key);
-  size_t i = 1;
-  size_t index = key_hashed % set->capacity;
+  size_t index = hash_vec(key) % set->capacity;
   while(set->buckets[index].flag == SET_FLAG_OCCUPIED && !vec_eq(set->buckets[index].entry, key))
-    {
-      index = (key_hashed + i*i) % set->capacity;
-      i++;
-    }
+    index++;
+
   return index;
-}
+}  
 
 bool set_has(HashSet *set, Vec3D key)
 {
@@ -43,11 +39,7 @@ bool set_has(HashSet *set, Vec3D key)
 }
 
 void set_put(HashSet *set, Vec3D key)
-{
-  if(set->filled > set->capacity / 2) {
-    printf("Warning >50 load factor of hashset reached\n");
-  }
-  
+{ 
   size_t index = probe(set, key);
   set->buckets[index].entry = key;
   set->buckets[index].flag = SET_FLAG_OCCUPIED;

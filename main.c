@@ -10,23 +10,16 @@
 #include "hashset.h"
 #include "constants.h"
 
-#define B(n) 1L
-#define KB(n) 1024L*B(n)
-#define MB(n) 1024L*KB(n)
-#define GB(n) 1024L*MB(n)
-
-#define SIZE GB(0)/sizeof(SetEntry);
-
 int main() {
     HashSet set;
-    set.capacity = SIZE;
+    set.capacity = 100000000;
     set.filled   = 0;
     set.buckets  = calloc(set.capacity, sizeof(SetEntry));
 
     printf("Created HashSet with %ld entries\n", set.capacity);
 
-    size_t jumps = 0;
-    Vec3D current  = {.x=0,.y=0,.z=0};
+    size_t jumps  = 0;
+    Vec3D current = {.x=0,.y=0,.z=0};
 
     clock_t t;
     t = clock();
@@ -59,7 +52,8 @@ int main() {
         if(jumps % 1000000 == 0)
         {
             double time_taken = ((double)(clock() - t))/CLOCKS_PER_SEC;
-            printf("%ld %f (%d, %d, %d)\n", jumps, time_taken, current.x, current.y, current.z);
+	    t = clock();
+	    printf("%ld %f (%d, %d, %d)\n", jumps, time_taken, current.x, current.y, current.z);
         }
         jumps++;
     }
