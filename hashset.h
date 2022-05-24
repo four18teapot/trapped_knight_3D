@@ -22,8 +22,6 @@ typedef struct {
   SetEntry *buckets;
 } HashSet;
 
-hash FNV(const byte* pBuffer, const byte* const pBufferEnd);
-
 hash hash_vec(Vec3D key);
 
 bool set_has(HashSet *set, Vec3D key);
