@@ -4,3 +4,4 @@ main
 *.bz2
 #*#
 tk
+test_results/
