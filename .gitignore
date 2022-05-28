@@ -1,2 +1,9 @@
 *.out
 tk
+main
+*.dat.*
+*.dat*
+yarn.dat
+yarn2.dat
+*.bz
+#*#

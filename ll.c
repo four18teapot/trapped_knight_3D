@@ -11,7 +11,6 @@ LL* LL_new(Vec3D data) {
 }
 
 void LL_push(LL *head, Vec3D data) {
-
   assert(head);
 
   while(head->next)
@@ -24,7 +23,7 @@ void LL_push(LL *head, Vec3D data) {
 bool LL_contains(LL *head, Vec3D data) {
   assert(head);
 
-  while(head->next) {
+  while(head) {
     if(vec_eq(data, head->data)) return true;
     head = head->next;
   }
