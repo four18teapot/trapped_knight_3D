@@ -11,7 +11,7 @@
 #include "hashset.h"
 #include "constants.h"
 
-#define HASH_SET_SIZE 400000000
+#define HASH_SET_SIZE 4000000000
 
 int main(void) {
   // test();
@@ -49,12 +49,11 @@ int main(void) {
     }
 
     current = min_vec;
+    jumps++;
     if(jumps % 1000000 == 0) {
       double time_taken = ((double)(clock() - t))/CLOCKS_PER_SEC;
       t = clock();
-      printf("%ld %f (%d, %d, %d)\n", jumps, time_taken, current.x, current.y, current.z);
+      printf("%ld mil.\t %10.2f sec.\t (%d, %d, %d)\n", jumps / 1000000, time_taken, current.x, current.y, current.z);
     }
-
-    jumps++;
   }
 }

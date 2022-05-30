@@ -5,8 +5,8 @@
 #include "vec3D.h"
 
 #define SET_FLAG_FREE 0
-#define SET_FLAG_OCCUPIED 1
-#define SET_FLAG_DELETE 2
+#define SET_FLAG_DELETE 1
+#define SET_FLAG_OCCUPIED 2
 
 typedef size_t hash;
 typedef char byte;

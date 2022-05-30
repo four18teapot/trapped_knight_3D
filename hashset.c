@@ -1,7 +1,9 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "hashset.h"
 #include "vec3D.h"
+#include "constants.h"
 
 hash FNV(const byte* pBuffer, const byte* const pBufferEnd) {
   const hash MagicPrime = 0x00000100000001b3;
@@ -13,7 +15,7 @@ hash FNV(const byte* pBuffer, const byte* const pBufferEnd) {
   return Hash;
 }
 
-ahash sum(Vec3D key) {
+hash sum(Vec3D key) {
   return key.x + key.y + key.z;
 }
 
@@ -52,9 +54,67 @@ bool is_enclosed(HashSet *set, Vec3D key) {
   return true;
 }
 
-void set_put(HashSet *set, Vec3D key) { 
+size_t mark_all_enclosed(HashSet *set) {
+  size_t marked = 0;
+  for(size_t i = 0; i < set->capacity; i++) {
+    if(set->buckets[i].flag == SET_FLAG_OCCUPIED) {
+      if(is_enclosed(set, set->buckets[i].entry)) {
+	set->buckets[i].flag = SET_FLAG_DELETE;
+	set->filled--;
+	marked++;
+      }
+    }
+  }
+  return marked;
+}
+
+size_t realloc_to(HashSet *set, size_t index) {
+  assert(index < set->capacity);
+  assert(set->buckets[index].flag == SET_FLAG_DELETE);
+
+  size_t pivot = index;
+  while(true) {
+    switch(set->buckets[(pivot + 1) % set->capacity].flag) {
+    case SET_FLAG_FREE:
+      set->buckets[index] = set->buckets[pivot];
+      set->buckets[pivot].flag = SET_FLAG_FREE;
+      return pivot;
+      break;
+    case SET_FLAG_DELETE:
+      realloc_to(set, (pivot + 1) % set->capacity);
+      break;
+    case SET_FLAG_OCCUPIED:
+      break;
+    default:
+      printf("Unreachable code! Sorry you broke the Universe. Exiting.\n");
+      exit(0);
+      break;
+    }
+    pivot = (pivot + 1) % set->capacity;
+  }
+}
+
+void sweep_all_marked_delete(HashSet *set) {
+  for(size_t i = 0; i < set->capacity; i++) {
+    if(set->buckets[i].flag == SET_FLAG_DELETE) {
+      realloc_to(set, i);
+    }
+  }
+}
+
+void set_put(HashSet *set, Vec3D key) {
   size_t index = probe(set, key);
   set->buckets[index].entry = key;
   set->buckets[index].flag = SET_FLAG_OCCUPIED;
   set->filled++;
+
+  /*
+  if(set->filled > set->capacity / 2) {
+    printf("50 percent of set occupied, marking entries for deletion...\n");
+    printf("%ld elements marked.\n", mark_all_enclosed(set));
+    printf("Starting deletion process...\n");
+    sweep_all_marked_delete(set);
+    printf("Elements sucessfully deleted.\n");
+  }
+  */
 }
