@@ -30,4 +30,8 @@ void set_put(HashSet *set, Vec3D key);
 
 size_t probe(HashSet *set, Vec3D key);
 
+bool is_surrounded(HashSet *set, Vec3D key);
+
+bool is_enclosed(HashSet *set, Vec3D key);
+
 #endif

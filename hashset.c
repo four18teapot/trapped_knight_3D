@@ -13,7 +13,7 @@ hash FNV(const byte* pBuffer, const byte* const pBufferEnd) {
   return Hash;
 }
 
-hash sum(Vec3D key) {
+ahash sum(Vec3D key) {
   return key.x + key.y + key.z;
 }
 
@@ -31,11 +31,25 @@ size_t probe(HashSet *set, Vec3D key) {
     index++;
 
   return index;
-}  
+}
 
 bool set_has(HashSet *set, Vec3D key) {
   size_t index = probe(set, key);
   return (set->buckets[index].flag == SET_FLAG_OCCUPIED) && vec_eq(set->buckets[index].entry, key);
+}
+
+bool is_surrounded(HashSet *set, Vec3D key) {
+  for(size_t m = 0; m < KNIGHT_MOVES_LEN; m++)
+    if(!set_has(set, vec_add(key, KNIGHT_MOVES[m])))
+      return false;
+  return true;
+}
+
+bool is_enclosed(HashSet *set, Vec3D key) {
+  for(size_t m = 0; m < KNIGHT_MOVES_LEN; m++)
+    if(!is_surrounded(set, KNIGHT_MOVES[m]))
+      return false;
+  return true;
 }
 
 void set_put(HashSet *set, Vec3D key) { 

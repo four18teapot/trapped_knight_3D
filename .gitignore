@@ -3,3 +3,5 @@ tk
 #*#
 *#*
 test_results/
+*.dat
+*.csv
